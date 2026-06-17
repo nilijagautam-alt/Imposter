@@ -1,0 +1,72 @@
+import { Request, Response } from 'express';
+import * as gameService from '../services/gameService';
+
+export async function createGame(req: Request, res: Response) {
+  try {
+    const { players, categoryId, imposterCount, customWords } = req.body;
+
+    if (!players || !Array.isArray(players)) {
+      return res.status(400).json({ error: 'Players array is required' });
+    }
+    if (players.length < 4) {
+      return res.status(400).json({ error: 'At least 4 players required' });
+    }
+    if (!categoryId) {
+      return res.status(400).json({ error: 'Category ID is required' });
+    }
+    if (![1, 2].includes(imposterCount)) {
+      return res.status(400).json({ error: 'Imposter count must be 1 or 2' });
+    }
+
+    const result = await gameService.createGame({
+      players,
+      categoryId,
+      imposterCount,
+      customWords,
+    });
+
+    res.status(201).json(result);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+export async function getGame(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const game = await gameService.getGame(id);
+    res.json(game);
+  } catch (error: any) {
+    if (error.message === 'Game not found') {
+      return res.status(404).json({ error: 'Game not found' });
+    }
+    res.status(500).json({ error: 'Failed to fetch game' });
+  }
+}
+
+export async function getGameResults(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const results = await gameService.getGameResults(id);
+    res.json(results);
+  } catch (error: any) {
+    if (error.message === 'Game not found') {
+      return res.status(404).json({ error: 'Game not found' });
+    }
+    res.status(500).json({ error: 'Failed to fetch results' });
+  }
+}
+
+export async function updateStatus(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    if (!['REVEALING', 'DISCUSSION', 'FINISHED'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    const game = await gameService.updateGameStatus(id, status);
+    res.json(game);
+  } catch (error: any) {
+    res.status(400).json({ error: error.message });
+  }
+}
