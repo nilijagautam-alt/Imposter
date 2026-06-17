@@ -1,0 +1,48 @@
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+const seedData: Record<string, string[]> = {
+  Fruits: ['Apple', 'Banana', 'Mango', 'Strawberry', 'Orange', 'Grape', 'Pineapple', 'Watermelon', 'Cherry', 'Peach', 'Blueberry', 'Lemon', 'Kiwi', 'Coconut', 'Papaya'],
+  Animals: ['Lion', 'Elephant', 'Tiger', 'Giraffe', 'Penguin', 'Dolphin', 'Eagle', 'Wolf', 'Kangaroo', 'Cheetah', 'Gorilla', 'Panda', 'Crocodile', 'Shark', 'Parrot'],
+  Places: ['Paris', 'Tokyo', 'New York', 'London', 'Rome', 'Sydney', 'Dubai', 'Cairo', 'Mumbai', 'Rio de Janeiro', 'Venice', 'Bangkok', 'Istanbul', 'Amsterdam', 'Singapore'],
+  'Daily Objects': ['Toothbrush', 'Wallet', 'Keys', 'Phone', 'Umbrella', 'Clock', 'Mirror', 'Pillow', 'Scissors', 'Ruler', 'Notebook', 'Mug', 'Lamp', 'Chair', 'Backpack'],
+  Food: ['Pizza', 'Burger', 'Sushi', 'Pasta', 'Taco', 'Ramen', 'Sandwich', 'Salad', 'Curry', 'Steak', 'Pancake', 'Waffle', 'Ice Cream', 'Soup', 'Burrito'],
+  Sports: ['Football', 'Basketball', 'Tennis', 'Swimming', 'Cricket', 'Baseball', 'Golf', 'Volleyball', 'Rugby', 'Boxing', 'Cycling', 'Skiing', 'Surfing', 'Gymnastics', 'Badminton'],
+  Movies: ['Inception', 'Avatar', 'Titanic', 'The Matrix', 'Interstellar', 'Avengers', 'The Lion King', 'Frozen', 'Joker', 'Parasite', 'Dune', 'Oppenheimer', 'Gladiator', 'Jurassic Park', 'Forrest Gump'],
+  Countries: ['Japan', 'Brazil', 'Canada', 'Australia', 'Germany', 'France', 'India', 'Italy', 'Mexico', 'Russia', 'Spain', 'Egypt', 'Argentina', 'South Korea', 'Sweden'],
+  Professions: ['Doctor', 'Engineer', 'Chef', 'Teacher', 'Pilot', 'Lawyer', 'Artist', 'Firefighter', 'Astronaut', 'Musician', 'Architect', 'Scientist', 'Actor', 'Journalist', 'Programmer'],
+};
+
+async function main() {
+  console.log('🌱 Seeding database...');
+
+  for (const [categoryName, words] of Object.entries(seedData)) {
+    const category = await prisma.category.upsert({
+      where: { name: categoryName },
+      update: {},
+      create: { name: categoryName },
+    });
+
+    for (const word of words) {
+      await prisma.word.upsert({
+        where: { value_categoryId: { value: word, categoryId: category.id } },
+        update: {},
+        create: { value: word, categoryId: category.id },
+      });
+    }
+
+    console.log(`✅ Seeded: ${categoryName} (${words.length} words)`);
+  }
+
+  console.log('🎉 Seeding complete!');
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
