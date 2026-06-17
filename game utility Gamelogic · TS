@@ -1,0 +1,68 @@
+/**
+ * Selects a random element from an array
+ */
+export function randomFrom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * Shuffles an array using Fisher-Yates algorithm
+ */
+export function shuffle<T>(arr: T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * Selects two different random words from a list
+ * Returns [normalWord, imposterWord]
+ */
+export function selectWords(words: string[]): [string, string] {
+  if (words.length < 2) {
+    throw new Error('Need at least 2 words to select normal and imposter words');
+  }
+  const shuffled = shuffle(words);
+  return [shuffled[0], shuffled[1]];
+}
+
+/**
+ * Assigns imposters to players.
+ * The starting player (index 0 in the reveal order) can NEVER be an imposter.
+ * Returns set of player indices who are imposters.
+ */
+export function assignImposters(
+  playerNames: string[],
+  imposterCount: number,
+  startingPlayerIndex: number
+): Set<number> {
+  const candidateIndices = playerNames
+    .map((_, idx) => idx)
+    .filter((idx) => idx !== startingPlayerIndex);
+
+  if (candidateIndices.length < imposterCount) {
+    throw new Error('Not enough players to assign imposters');
+  }
+
+  const shuffledCandidates = shuffle(candidateIndices);
+  return new Set(shuffledCandidates.slice(0, imposterCount));
+}
+
+/**
+ * Generates a reveal order for players.
+ * The starting player is placed first.
+ */
+export function generateRevealOrder(
+  playerCount: number,
+  startingPlayerIndex: number
+): number[] {
+  const indices = Array.from({ length: playerCount }, (_, i) => i).filter(
+    (i) => i !== startingPlayerIndex
+  );
+  const shuffled = shuffle(indices);
+  // Starting player reveals last (they know who the starting player is)
+  return [startingPlayerIndex, ...shuffled];
+}
