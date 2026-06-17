@@ -1,0 +1,54 @@
+export interface CreateGameRequest {
+  players: string[];
+  categoryId: string;
+  imposterCount: 1 | 2;
+  customWords?: string[];
+}
+
+export interface PlayerResponse {
+  id: string;
+  name: string;
+  revealOrder: number;
+  isStarting: boolean;
+}
+
+export interface CreateGameResponse {
+  gameId: string;
+  startingPlayerName: string;
+  players: PlayerResponse[];
+  totalPlayers: number;
+}
+
+export interface GameResultPlayer {
+  id: string;
+  name: string;
+  isImposter: boolean;
+  assignedWord: string;
+  isStarting: boolean;
+}
+
+export interface GameResultResponse {
+  gameId: string;
+  category: string;
+  normalWord: string;
+  imposterWord: string;
+  imposterCount: number;
+  startingPlayerName: string;
+  players: GameResultPlayer[];
+}
+
+export interface CategoryResponse {
+  id: string;
+  name: string;
+  wordCount: number;
+}
+
+export interface WordResponse {
+  id: string;
+  value: string;
+}
+
+export interface ApiError {
+  error: string;
+  details?: unknown;
+}
