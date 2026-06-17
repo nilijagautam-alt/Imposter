@@ -1,0 +1,19 @@
+import { Router } from 'express';
+import * as categoryController from '../controllers/categoryController';
+import * as gameController from '../controllers/gameController';
+
+const router = Router();
+
+// Category routes
+router.get('/categories', categoryController.getCategories);
+router.get('/categories/:id/words', categoryController.getCategoryWords);
+router.post('/categories', categoryController.createCategory);
+router.post('/categories/:id/words', categoryController.addWord);
+
+// Game routes
+router.post('/game/create', gameController.createGame);
+router.get('/game/:id', gameController.getGame);
+router.get('/game/:id/results', gameController.getGameResults);
+router.patch('/game/:id/status', gameController.updateStatus);
+
+export default router;
